@@ -1,0 +1,118 @@
+###Eliminacja Gaussa - wyznacznik macierzy
+
+A = [3,4,-2;6,2,3;-3,4,5]
+determinant(A)
+detA=ans
+rng(2022)
+B = randn(7)
+determinant(B)
+detB=ans
+function [detX, triX] = determinant(X)
+roz=size(X)
+detX=1
+for s=1:roz
+    for i=s+1:roz
+    pomocnicza = -X(i,s)/X(s,s)
+        for j=s:roz
+            X(i,j)= X(i,j)+pomocnicza*X(s,j)
+        end
+    end
+    detX = detX*X(s,s)
+end
+end
+
+##Eliminacja Gaussa - rozwiązywanie równań liniowych
+
+A1 = [-1,2,1;1,-3,-2;3,-1,-1];
+B1 = [-1;-1;4];
+Y=determinant(A1,B1)
+
+rng(42)
+G = randi([-30,30], 6,6);
+d= randi([-78, 78], 6, 1);
+m=determinant(G,d)
+
+function [W] = determinant(A,B)
+    X = [A,B];
+    m = size(X,1);
+    n = size(X,2);
+    for j=1:(n-1)
+        for i=(j+1):m
+            mnozenie = X(i,j)/X(j,j);
+            for k=j:n
+                X(i,k) = X(i,k)- mnozenie * X(j,k);
+            end
+        end
+    end
+    W=zeros(m,1);
+    for i=m:-1:1
+        sum=0;
+        for j=i+1:m
+            sum = sum + X(i,j)*W(j);
+        end
+        W(i) = (X(i,n)-sum)/X(i,i);
+    end
+end
+
+##Rozwiązywanie równań liniowych metodą iteracji prostej
+
+A = [6,4,1;1,-3,-1;1,-1,-4];
+B = [11;-3;-4];
+X0 = [2;0;-2];
+eps = 0.001
+eps2 = 0.00001
+
+[X1, it1, w1, w2, w3]= it_prosta(A,B,X0,eps)
+[X2, it2, w11, w21, w31]= it_prosta(A,B,X0,eps2)
+it2=20
+function[X, it, w1, w2, w3] = it_prosta(A, B, X0, eps)
+%Macierz Diagonalna D
+D = zeros(size(A));
+n = size(A);
+for i=1:n
+    for j=1:n
+        if(i==j)
+        D(i,j)=A(i,j)
+        end
+    end
+end
+%Macierz R
+R = A-D
+
+%Macierz odwrotna D (D1)
+D1 = D
+    for i=1:n
+        for j=1:n
+            if(i==j)
+            D1(i,j)=D(i,j)^(-1)
+            end
+        end
+    end
+    
+%Macierz W
+W=-D1*R
+%Macierz Z
+Z=D1*B
+
+%Warunek zbierzności w1
+czeking=0 %Zmienna, która sprawdza czy dany warunek zbieżności zachodzi, jeśli tak to +1
+w1 = max(abs(sum(W,2)))
+w2 = max(abs(sum(W)))
+w3 = sqrt(sum(sum(W.*W),2))
+if(w1<1||w2<1||w3<1)
+    %Krok4
+    X =zeros(size(X0))
+    X = W*X0+Z
+    wektorRoznic= X-X0
+    granicaX = ones(size(X0))*eps   
+    it = 1
+    while abs(wektorRoznic)>granicaX
+       it=it+1 
+       X = W*X0+Z
+       wektorRoznic = X-X0
+       X0=X
+    end
+end
+end
+
+##
