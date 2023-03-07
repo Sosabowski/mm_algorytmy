@@ -1,4 +1,10 @@
-###Eliminacja Gaussa - wyznacznik macierzy
+##Nie chciało mi się robić kilku plików więc zrobiłem wszystko w jednym
+##Trochę trudno się połapać co gdzie i jak ale szczerze mówiąc to chuj w to
+##Aha i nie jest po kolei, ale to raczej nie jest problem
+##Część skryptów wykonałem ja (o dziwo), część Farmazon, a część Sc00ra
+##Pozdrawiam i polecam Piotr Frączewski
+
+### Eliminacja Gaussa - wyznacznik macierzy #######################################################################################################################################################
 
 A = [3,4,-2;6,2,3;-3,4,5]
 determinant(A)
@@ -21,7 +27,7 @@ for s=1:roz
 end
 end
 
-##Eliminacja Gaussa - rozwiązywanie równań liniowych
+## Eliminacja Gaussa - rozwiązywanie równań liniowych #######################################################################################################################################################
 
 A1 = [-1,2,1;1,-3,-2;3,-1,-1];
 B1 = [-1;-1;4];
@@ -54,7 +60,7 @@ function [W] = determinant(A,B)
     end
 end
 
-##Rozwiązywanie równań liniowych metodą iteracji prostej
+## Rozwiązywanie równań liniowych metodą iteracji prostej #######################################################################################################################################################
 
 A = [6,4,1;1,-3,-1;1,-1,-4];
 B = [11;-3;-4];
@@ -115,4 +121,510 @@ if(w1<1||w2<1||w3<1)
 end
 end
 
-##
+## Aproksymacja wielomianowa (?) #######################################################################################################################################################
+
+x = [-2,-1,0,1,2];
+y = [4,1,0,1,4];
+xa = [-3 , -2, -1,  0 ,  1,     2,     3];
+ya = [-13.5092,   15.0143,   15.6399,   11.9732,    2.1204,    7.1199,   22.1617];
+st = 2
+sta = 3
+iks =[-3:0.1:3]; 
+
+
+[m ig]=aprksymacja_wielomianem(x,y,st, iks);
+plot(x,y,'o')
+hold on
+plot(iks, ig, '.')
+figure
+[m3 ig3]=aprksymacja_wielomianem(xa,ya,sta, iks);
+plot(xa,ya,'o')
+hold on
+plot(iks, ig3, '.')
+
+function [m,igrek] = aprksymacja_wielomianem(x,y,st, iks)
+n = length(x);
+igrek = zeros(size(iks));
+d = y';
+G = zeros(n, st+1);
+    for i = 1:st+1
+        G(:,i) = x.^(i-1);
+    end
+m = (G'*G)^-1*G'*d
+for i = 1:length(iks)    
+    for j = 1:st+1
+        %igrek=m(1)+m(2)*iks+m(3)*iks^2;
+        igrek(i) = m(j)*iks(i)^(j-1)+igrek(i);
+    end
+end
+end
+
+## Pochodne ##
+
+x=[-2*pi:0.1: 2*pi];
+y = my_fun1(x);
+plot(x,y)
+yp = my_fun1p(x);
+plot(x,yp)
+yp2_01 = firstDer2order(@my_fun1, x, 0.1)
+yp2_05 = firstDer2order(@my_fun1, x, 0.5)
+yp4_01 = firstDer4order(@my_fun1, x, 0.1)
+yp4_05 = firstDer4order(@my_fun1, x, 0.5)
+
+%Funkcje
+function [y] = my_fun1(x);
+y = (1/3).*(x.^2).*sin(3.*x);
+end
+
+function [y] = my_fun1p(x)
+y = x.^2.*cos(3.*x)+(2/3).*x.*sin(3.*x)
+end
+
+function [y] = firstDer2order(fun, x, h)
+y = (fun(x+h)-(fun(x-h)))/(2*h)
+end
+
+function [y] = firstDer4order(fun, x, h)
+y = (1/(12*h))*(fun(x-2*h)-8*fun(x-h)+8*fun(x+h)-fun(x+2*h))
+end
+
+## Całkowanie wielomianowe #######################################################################################################################################################
+
+y = @(x) 1/3.*(exp(-x.^2)).*(x.^3);
+x = [-5:0.01:5];
+plot(x, y(x))
+legend("y")
+
+%calka_y = @(s)-1/6*(exp(-(s^2)))*(s^2+1)
+val_c = 0.1514
+krok = 1;
+wektor = ones(1,10);
+for i=1:10
+    wektor(:,i+1) = wektor(:,i)/2  ;
+end
+
+val_t = integral_trapez(y, 0, 2, 0.125)
+val_p = integral_rectangle(y, 0, 2, 0.125)
+
+function [calka_1] = integral_rectangle(fun, a, b, h)
+    n = (b-a)/h;
+    x = zeros(1,n);
+    for i = 1:length(x)
+        x(i) = a+h*(i-1);   
+    end
+    for i = 1:length(x)
+        y(i) = fun(x(i));
+    end
+    calka_1 = sum(y)*h;
+end
+
+function [calka_2] = integral_trapez(fun, a, b, h)
+    n = (b-a)/h+1;
+    x = zeros(1,n);
+    for i=1:length(x)
+        x(i) = a+h*(i-1);
+    end
+    for i=1:length(x)
+        y(i) = fun(x(i));
+    end
+    calka_2 = h*(y(1)+y(n))/2+sum(y(2:n-1))*h;
+end
+
+## Nie wiem ##
+
+x=[-2*pi:0.1: 2*pi]
+y = my_fun2(x)
+yp = my_fun2p(x)
+yp2_01 =secondDer2order(@my_fun2, x, 0.1);
+yp2_05 =secondDer2order(@my_fun2, x, 0.5);
+yp4_01 =secondDer4order(@my_fun2, x, 0.1);
+yp4_05 =secondDer4order(@my_fun2, x, 0.5);
+
+%Funkcje
+function [y] = my_fun2(x)
+y = (1/3).*sin(3.*x).*exp(-(x).^2);
+end
+
+function [y] = my_fun2p(x)
+%y = (1/3).*exp(-x.^2).*(cos(3.*x)-2.*x.*sin(3.*x));
+y = (1/3).*exp(-x.^2).*((4.*(x.^2)-11).*sin(3.*x)-12.*x.*cos(3.*x))
+end
+
+function [y] = secondDer2order(fun, x, h)
+y = (fun(x+h)-(2.*fun(x))+(fun(x-h)))./(h.*h)
+end
+
+function [y] = secondDer4order(fun, x, h)
+y = 1/(12.*(h^2)).*((-fun(x-2.*h))+16*fun(x-h)-30*fun(x)+16*fun(x+h)-fun(x+(2*h)));
+end
+
+## Algorytm bisekcji #######################################################################################################################################################
+
+unkcja = @(x)exp(-x)+sin(2*x+(pi/3));
+funkcja_testowa = @(x)x^2-3;
+przedzial = [0:4]
+a = 0;
+b = 2;
+eps = 0.01;
+b_test = 8;
+eps_test = 0.1;
+[x1, iter] = bisekcja(funkcja, a, b, eps)
+fplot(funkcja,[0 4])
+hold on
+plot(x1, 0, 'o')
+function [x, iter] = bisekcja(fun, a, b, eps)
+iter = 0
+ya = fun(a)
+yb = fun(b)
+while(abs(b-a)>eps) | fun(x) == 0
+    iter = iter + 1;
+    x = (a+b)/2
+    y = fun(x)
+    if y~=0
+        if ya*y > 0
+           a = x
+           ya=y
+        else
+            b = x
+            yb=y
+        end
+    else   
+    end
+end
+end
+
+## Chyba metoda stycznych #######################################################################################################################################################
+
+funkcja = @(x)exp(-x)+sin(2*x+(pi/3));
+pochodna = @(x)2*cos(1/3*(6*x+pi))-exp(-x);
+funkcja_testowa = @(x)x^2-3;
+pochodna_test = @(x)2*x
+a = 0;
+b = 6;
+x0 = 4;
+eps = 0.01;
+b_test = 8;
+eps_test = 0.1;
+
+[x1, iter, x_all] = stycznych(funkcja, pochodna, a, b_test, eps, x0)
+
+fplot(funkcja, [0 6])
+hold on
+plot(x1,0,'o')
+
+function [x1, iter, x_all] = stycznych(fun, pochodna, a, b, eps, x0)
+iter = 0;
+x1 = 0;
+x_all = 0
+while(abs(fun(x1))>eps)
+    iter = iter + 1
+    x1 = x0 - (fun(x0)/pochodna(x0))
+    x_all(iter) = x1
+    x0 = x1
+end
+end
+
+## Metody eulera prostokątów i innych chujów #######################################################################################################################################################
+
+y_zero = @(x,y)y-x^2;
+y = @(x)x^2+2*x-exp(x)+2;
+an_19 = y(1.9);
+
+eu = rrz_euler(y_zero, 0,2,0.1,0,1);
+eu_19 = eu(end-1);
+
+tr = rrz_trapez(y_zero, 0,2,0.1,0,1);
+tr_19 = tr(end-1);
+ 
+rk = rrz_rk(y_zero, 0,2,0.1,0,1);
+rk_19 = rk(end-1)
+
+x = [0:0.1:2];
+au = zeros(size(x));
+for i = 1:length(x)
+    au(i) = y(x(i));
+end
+plot(x,eu)
+hold on
+plot(x,au,"o")
+plot(x,tr)
+plot(x,rk)
+
+function [y] = rrz_euler(fun, a,b,h,x0,y0)
+ iks = [a:h:b]';
+ n=length(iks);
+ y = zeros(n,1);
+ y(1) = y0;
+ for i=2:n
+ y(i) = y(i-1)+h*fun(iks(i-1),y(i-1));
+ end
+end
+
+function [y] = rrz_trapez(fun, a,b,h,x0,y0)
+iks = [0:0.1:2]';
+ n=length(iks);
+ y = zeros(n,1);
+ y(1) = y0;
+ for i=2:n
+ y(i) = y(i-1)+(h/2)*(fun(iks(i-1),y(i-1)) +fun(iks(i),y(i-1))+h*fun(iks(i-1),y(i-1)));
+ end
+end
+
+function [y] = rrz_rk(fun, a,b,h,x0,y0)
+iks = [0:0.1:2];
+n=length(iks);
+y = zeros(n,1);
+y(1) = y0;
+for i=2:n
+ k1 = h*(fun(iks(i-1),y(i-1)));
+ k2 = h*(fun(iks(i-1)+(1/2)*h,y(i-1)+(1/2)*k1));
+ k3 = h*(fun(iks(i-1)+(1/2)*h,y(i-1)+(1/2)*k2));
+ k4 = h*(fun(iks(i-1)+h,y(i-1)+k3));
+ y(i) = y(i-1) + (1/6)*(k1+2*k2+2*k3+k4);
+end
+end
+
+## To ostatnie z prętem #######################################################################################################################################################
+
+alfa = 166 %mm^2
+dx = 20 %mm
+czas = 6 %s
+ilosc_punktow = 100/20
+Dtmax = maksymalny_dt(166, 20)
+dt = floor(10*Dtmax)/10
+ilosc_t_w_chwilach = czas/dt
+
+for i=1:ilosc_t_w_chwilach+1
+    czas_t(i)=(i-1)*dt
+end
+Temperatura = zeros(6)
+Temperatura(:,1) = 100
+Temperatura(:,end) = 50
+n = length(Temperatura(1,:));
+a = alfa*dt/(dx^2)
+for i=2:n
+    for j=2:n-1
+        Temperatura(i,j) = Temperatura(i-1,j) + a*(Temperatura(i-1,j-1)-2*Temperatura(i-1,j)+Temperatura(i-1,j+1));
+        Temperatura(i,j) = round(Temperatura(i,j),2);
+    end
+end
+Temperatura
+temp_6s = Temperatura(end,:)
+
+plot(czas_t, Temperatura)
+hold on 
+legend('czas_t')
+xlabel('czas[s]')
+ylabel('Temperatura[C]')
+title('Wykres zmian temperatury pręta')
+
+function maxDt = maksymalny_dt(alfa, dx)
+maxDt = dx^2/(2*alfa)
+end
+
+
+
+
+
+## Nie wiem #######################################################################################################################################################
+
+
+
+%Define variables a, b, and c
+a = 1;
+b = -5;
+c = 6;
+
+x=-5:0.01:5;
+
+for i=1:length(x)
+    y_runge(i)=1/(1+x(i)^2);
+end
+
+x2=wezly(2);
+y2=igreki_wezly(x2);
+x4=wezly(4);
+y4=igreki_wezly(x4);
+x6=wezly(6);
+y6=igreki_wezly(x6);
+x8=wezly(8);
+y8=igreki_wezly(x8);
+x10=wezly(10);
+y10=igreki_wezly(x10);
+
+for i=1:length(x)
+    y_Lagrange_2(i)=interp_lagrange(x2, y2, x(i));
+end
+for i=1:length(x)
+    y_Lagrange_4(i)=interp_lagrange(x4, y4, x(i));
+end
+for i=1:length(x)
+    y_Lagrange_6(i)=interp_lagrange(x6, y6, x(i));
+end
+for i=1:length(x)
+    y_Lagrange_8(i)=interp_lagrange(x8, y8, x(i));
+end
+for i=1:length(x)
+    y_Lagrange_10(i)=interp_lagrange(x10, y10, x(i));
+end
+y_spline_2=interp1(x2, y2, x, 'spline');
+y_spline_4=interp1(x4, y4, x, 'spline');
+y_spline_6=interp1(x6, y6, x, 'spline');
+y_spline_8=interp1(x8, y8, x, 'spline');
+y_spline_10=interp1(x10, y10, x, 'spline');
+
+figure(1)
+subplot(2, 3, 1)
+plot(x, y_runge)
+title('Funkcja Rungego')
+xlabel('x')
+ylabel('y')
+subplot(2, 3, 2)
+plot(x2, y2, 'o')
+hold on
+plot(x, y_Lagrange_2)
+title('Interpolacja Lagrange n=2')
+xlabel('x')
+ylabel('y')
+subplot(2, 3, 3)
+plot(x4, y4, 'o')
+hold on
+plot(x, y_Lagrange_4)
+title('Interpolacja Lagrange n=4')
+xlabel('x')
+ylabel('y')
+subplot(2, 3, 4)
+plot(x6, y6, 'o')
+hold on
+plot(x, y_Lagrange_6)
+title('Interpolacja Lagrange n=6')
+xlabel('x')
+ylabel('y')
+subplot(2, 3, 5)
+plot(x8, y8, 'o')
+hold on
+plot(x, y_Lagrange_8)
+title('Interpolacja Lagrange n=8')
+xlabel('x')
+ylabel('y')
+subplot(2, 3, 6)
+plot(x10, y10, 'o')
+hold on
+plot(x, y_Lagrange_10)
+title('Interpolacja Lagrange n=10')
+xlabel('x')
+ylabel('y')
+
+figure(2)
+subplot(2, 3, 1)
+plot(x, y_runge)
+title('Funkcja Rungego')
+xlabel('x')
+ylabel('y')
+subplot(2, 3, 2)
+plot(x2, y2, 'o')
+hold on
+plot(x, y_spline_2)
+title('Interpolacja splajnami n=2')
+xlabel('x')
+ylabel('y')
+subplot(2, 3, 3)
+plot(x4, y4, 'o')
+hold on
+plot(x, y_spline_4)
+title('Interpolacja splajnami n=4')
+xlabel('x')
+ylabel('y')
+subplot(2, 3, 4)
+plot(x6, y6, 'o')
+hold on
+plot(x, y_spline_6)
+title('Interpolacja splajnami n=6')
+xlabel('x')
+ylabel('y')
+subplot(2, 3, 5)
+plot(x8, y8, 'o')
+hold on
+plot(x, y_spline_8)
+title('Interpolacja splajnami n=8')
+xlabel('x')
+ylabel('y')
+subplot(2, 3, 6)
+plot(x10, y10, 'o')
+hold on
+plot(x, y_spline_10)
+title('Interpolacja splajnami n=10')
+xlabel('x')
+ylabel('y')
+
+igrek10s=y_spline_10;
+igrek10l=y_Lagrange_10;
+
+function [wezel]=wezly(n)
+for i=0:n
+    wezel(i+1)=-5+i*10/n;
+end
+end
+
+function [y]=igreki_wezly(x)
+for i=1:length(x)
+    y(i)=1/(1+x(i)^2);
+end
+end
+
+function [igrek]=interp_lagrange(x, y, iks)
+n=length(x);
+wynik=0;
+for i=1:n
+    licznik=1;
+    mianownik=1;
+    for k=1:n
+        if(k~=i)
+            licznik=licznik*(iks-x(k));
+            mianownik=mianownik*(x(i)-x(k));
+        end
+    end
+    iloraz=licznik/mianownik;
+    wynik=wynik+y(i)*iloraz;
+    igrek=wynik;
+end
+end
+
+
+## Nie wiem #######################################################################################################################################################
+
+daneH = load('H.txt');
+daneHX = daneH(1,:);
+daneHY = daneH(2,:);
+
+iks=[-9:0.1:9];
+y_Lagrange = interp_lagrange(daneHX,daneHY, iks)
+y_Linear = interp1(daneHX, daneHY, iks)
+y_Spline = interp1(daneHX, daneHY, iks, 'spline')
+y_Nearest = interp1(daneHX, daneHY, iks, 'nearest')
+
+plot(daneHX,daneHY, 'o', iks, y_Linear, iks, y_Spline, iks, y_Nearest, iks, y_Lagrange)
+xlabel('x')
+ylabel('y')
+title('Interpolacja')
+legend
+
+
+
+
+function [igrek] = interp_lagrange(x,y,iks)
+n = length(x);
+igrek = 0;
+for i = 1:n
+    licznik = 1;
+    mianownik = 1;
+    for k = 1:n
+        if(k~=i)
+            licznik = licznik.*(iks - x(k));
+            mianownik = mianownik.*(x(i)-x(k));
+        end
+    end
+    iloraz = (licznik./mianownik);
+    igrek = igrek + y(i).*iloraz;
+end
+end
